@@ -1,0 +1,76 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "databaseAccounts_leimingaccounttest_name": {
+            "defaultValue": "leimingaccounttest",
+            "type": "String"
+        },
+        "privateEndpoints_privateendpoint_externalid": {
+            "defaultValue": "/subscriptions/9f7f5ecb-c586-4340-980d-9adb9514feaa/resourceGroups/deploymenttest/providers/Microsoft.Network/privateEndpoints/privateendpoint",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "apiVersion": "2020-06-01-preview",
+            "name": "[parameters('databaseAccounts_leimingaccounttest_name')]",
+            "location": "Australia East",
+            "kind": "GlobalDocumentDB",
+            "properties": {
+                "publicNetworkAccess": "Enabled",
+                "enableAutomaticFailover": false,
+                "enableMultipleWriteLocations": false,
+                "isVirtualNetworkFilterEnabled": false,
+                "virtualNetworkRules": [],
+                "disableKeyBasedMetadataWriteAccess": false,
+                "enableFreeTier": false,
+                "enableAnalyticalStorage": false,
+                "createMode": "Default",
+                "databaseAccountOfferType": "Standard",
+                "consistencyPolicy": {
+                    "defaultConsistencyLevel": "Session",
+                    "maxIntervalInSeconds": 5,
+                    "maxStalenessPrefix": 100
+                },
+                "locations": [
+                    {
+                        "locationName": "Australia East",
+                        "provisioningState": "Succeeded",
+                        "failoverPriority": 0,
+                        "isZoneRedundant": false
+                    }
+                ],
+                "capabilities": [],
+                "ipRules": [],
+                "backupPolicy": {
+                    "type": "Periodic",
+                    "periodicModeProperties": {
+                        "backupIntervalInMinutes": 240,
+                        "backupRetentionIntervalInHours": 8
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/privateEndpointConnections",
+            "apiVersion": "2019-08-01-preview",
+            "name": "[concat(parameters('databaseAccounts_leimingaccounttest_name'), '/privateendpoint')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_leimingaccounttest_name'))]"
+            ],
+            "properties": {
+                "provisioningState": "Succeeded",
+                "groupId": "Sql",
+                "privateEndpoint": {
+                    "id": "[parameters('privateEndpoints_privateendpoint_externalid')]"
+                },
+                "privateLinkServiceConnectionState": {
+                    "status": "Approved"
+                }
+            }
+        }
+    ]
+}
